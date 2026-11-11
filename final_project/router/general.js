@@ -1,4 +1,5 @@
 const express = require('express');
+const axios = require('axios');
 let books = require("./booksdb.js");
 let isValid = require("./auth_users.js").isValid;
 let users = require("./auth_users.js").users;
@@ -59,3 +60,43 @@ public_users.get('/review/:isbn', function (req, res) {
 });
 
 module.exports.general = public_users;
+
+
+// Task 11: Asynchronous book retrieval using Axios and async/await.
+// These functions call the public API endpoints implemented above.
+// Start the Express server before invoking them.
+const api = axios.create({
+  baseURL: process.env.BOOKSTORE_API_URL || 'http://localhost:5000',
+  timeout: 10000
+});
+
+async function getAllBooks() {
+  const response = await api.get('/');
+  return response.data;
+}
+
+async function getBookByISBN(isbn) {
+  const response = await api.get('/isbn/' + encodeURIComponent(isbn));
+  return response.data;
+}
+
+async function getBooksByAuthor(author) {
+  const response = await api.get('/author/' + encodeURIComponent(author));
+  return response.data;
+}
+
+async function getBooksByTitle(title) {
+  const response = await api.get('/title/' + encodeURIComponent(title));
+  return response.data;
+}
+
+// Promise callback example (equivalent to using async/await above).
+function getAllBooksWithPromise() {
+  return api.get('/').then(response => response.data);
+}
+
+module.exports.getAllBooks = getAllBooks;
+module.exports.getBookByISBN = getBookByISBN;
+module.exports.getBooksByAuthor = getBooksByAuthor;
+module.exports.getBooksByTitle = getBooksByTitle;
+module.exports.getAllBooksWithPromise = getAllBooksWithPromise;
